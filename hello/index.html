@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Little Aesthetic Journal - Digital Flipbook</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Fredoka:wght@400;500;600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PageFlip Library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+
+    <style>
+        :root {
+            --pink-cover: #FFB7C5;
+            --pink-accent: #FF85A1;
+            --cream-bg: #FFFDF7;
+            --cream-paper: #FFF9F2;
+            --text-main: #5A4A42;
+            --text-sub: #8C7A6B;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #F7EBE8;
+            background-image: 
+                radial-gradient(#E8D5C4 1.5px, transparent 1.5px),
+                radial-gradient(#E8D5C4 1.5px, #F7EBE8 1.5px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            min-height: 100svh;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Paper texture & line pattern */
+        .page-paper {
+            background-color: var(--cream-paper);
+            background-image: linear-gradient(#e5decf 1px, transparent 1px);
+            background-size: 100% 28px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-grid {
+            background-color: var(--cream-bg);
+            background-image: 
+                linear-gradient(to right, rgba(229, 222, 207, 0.5) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(229, 222, 207, 0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Spiral Ring Effects */
+        .spiral-binding {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 32px;
+            transform: translateX(-50%);
+            z-index: 40;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 15px 0;
+        }
+
+        .ring {
+            width: 32px;
+            height: 14px;
+            background: linear-gradient(180deg, #d4d4d4 0%, #ffffff 40%, #a8a8a8 80%, #707070 100%);
+            border-radius: 8px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.25);
+            position: relative;
+        }
+
+        .ring::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 2px;
+            width: 24px;
+            height: 3px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 3px;
+        }
+
+        /* Aesthetic Decorative Elements */
+        .washi-tape {
+            position: absolute;
+            height: 24px;
+            background-color: rgba(255, 183, 197, 0.65);
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 2px dashed rgba(255,255,255,0.5);
+            border-right: 2px dashed rgba(255,255,255,0.5);
+            transform: rotate(-3deg);
+            z-index: 10;
+        }
+
+        .washi-tape-yellow {
+            background-color: rgba(254, 240, 138, 0.7);
+            transform: rotate(2deg);
+        }
+
+        .washi-tape-blue {
+            background-color: rgba(186, 230, 253, 0.7);
+            transform: rotate(-1deg);
+        }
+
+        .sticker {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.12));
+        }
+
+        .sticker:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Polaroid Photo Effect */
+        .polaroid {
+            background: white;
+            padding: 10px 10px 25px 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transform: rotate(-2deg);
+            transition: all 0.3s ease;
+        }
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.04);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 20;
+        }
+
+        /* Book Wrapper & Page Flip Styles */
+        .flip-book {
+            box-shadow: 0 20px 40px rgba(90, 74, 66, 0.25);
+            border-radius: 8px;
+            background: transparent;
+            margin: 0 auto;
+        }
+
+        .page {
+            padding: 0;
+            background-color: var(--cream-paper);
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .page-cover {
+            background-color: var(--pink-cover);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 133, 161, 0.3) 0%, transparent 25%);
+            border: 6px solid #FFA3B5;
+        }
+
+        /* Custom Scrollbar for inner page blocks if needed */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F1F1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB7C5;
+            border-radius: 10px;
+        }
+
+        /* Cute Button Effects */
+        .btn-cute {
+            background: linear-gradient(135deg, #FF9EAA, #FF7088);
+            box-shadow: 0 4px 10px rgba(255, 112, 136, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-cute:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(255, 112, 136, 0.4);
+        }
+        .btn-cute:active {
+            transform: translateY(0);
+        }
+
+        /* Toast Popup */
+        #toast {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            header {
+                justify-content: center;
+                margin-bottom: 0.5rem;
+                padding: 0.75rem;
+            }
+
+            header > div:first-child,
+            header > div:last-child {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #pageSelect {
+                max-width: min(65vw, 18rem);
+            }
+
+            main {
+                min-height: 0;
+                padding-top: 0.25rem;
+                padding-bottom: 0.25rem;
+            }
+
+            .page {
+                padding: 1rem;
+            }
+
+            footer {
+                margin-top: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            footer > span {
+                font-size: 10px;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 380px) {
+            footer > span {
+                display: none;
+            }
+
+            #audioToggle {
+                padding: 0.5rem 0.65rem;
+            }
+
+            #pageSelect {
+                max-width: 46vw;
+                font-size: 0.75rem;
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .spiral-binding {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-2 sm:p-6 select-none">
+
+    <!-- Top Header Navigation & Controls -->
+    <header class="w-full max-w-5xl flex flex-wrap justify-between items-center mb-4 px-4 py-3 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-pink-100 gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">📖</span>
+            <div>
+                <h1 class="font-title text-xl font-bold text-pink-600 tracking-wide">My Little Journal</h1>
+                <p class="text-xs text-gray-500">Interactive Aesthetic Flipbook</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
+            <!-- Audio Toggle -->
+            <button id="audioToggle" class="p-2.5 px-3.5 bg-pink-50 text-pink-600 rounded-xl hover:bg-pink-100 transition text-sm flex items-center gap-2 font-semibold">
+                <i class="fa-solid fa-volume-high"></i>
+                <span class="hidden sm:inline">Sound ON</span>
+            </button>
+
+            <!-- Jump to Page Dropdown -->
+            <select id="pageSelect" class="bg-pink-50 border border-pink-200 text-pink-700 text-sm rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-pink-100 font-medium">
+                <option value="0">Cover</option>
+                <option value="1">Page 1: Halaman Pembuka</option>
+                <option value="2">Page 2: Pesan (1)</option>
+                <option value="3">Page 3: Pesan (2)</option>
+                <option value="4">Page 4: Pesan (3)</option>
+                <option value="5">Page 5: Selesai</option>
+                <option value="6">Page 6: Thank You</option>
+            </select>
+
+            <!-- Page Number Display -->
+            <div class="bg-pink-100 text-pink-700 px-3 py-1.5 rounded-xl text-xs font-bold font-mono">
+                <span id="currentPageNum">1</span> / <span id="totalPagesNum">7</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Book Container -->
+    <main class="relative w-full flex-1 flex items-center justify-center py-2">
+        
+        <!-- Center Spiral Rings overlay for aesthetic open-book feel (Desktop/Tablet) -->
+        <div id="spiralContainer" class="spiral-binding">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+
+        <!-- The Flipbook -->
+        <div id="flipbook" class="flip-book">
+            
+            <!-- PAGE 0: COVER -->
+            <div class="page page-cover p-6 flex flex-col justify-between items-center text-center relative">
+                <div class="washi-tape w-28 -top-2 left-8"></div>
+                <div class="washi-tape washi-tape-yellow w-24 -top-2 right-8"></div>
+                
+                <div class="mt-4">
+                    <span class="inline-block px-3 py-1 bg-white/70 backdrop-blur rounded-full text-xs font-bold text-pink-600 tracking-wider mb-1">For Someone Special ✨</span>
+                    <span class="sticker absolute top-3 left-4 text-2xl">🌸</span>
+                    <span class="sticker absolute top-3 right-4 text-2xl">✨</span>
+                </div>
+
+                <!-- Cute SVG Cat Holding a Small Flower -->
+                <div class="relative my-2 flex flex-col items-center">
+                    <div class="w-44 h-44 sm:w-48 sm:h-48 bg-white/85 rounded-full flex items-center justify-center shadow-inner border-4 border-white relative">
+                        <svg class="w-36 h-36" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Cat Body & Head -->
+                            <ellipse cx="100" cy="140" rx="45" ry="38" fill="#FFF5EE"/>
+                            <ellipse cx="100" cy="100" rx="50" ry="42" fill="#FFF5EE"/>
+                            
+                            <!-- Ears -->
+                            <path d="M55 70 C45 35, 75 40, 80 65 Z" fill="#FFF5EE"/>
+                            <path d="M145 70 C155 35, 125 40, 120 65 Z" fill="#FFF5EE"/>
+                            <path d="M60 65 C53 43, 72 47, 75 60 Z" fill="#FFB7C5"/>
+                            <path d="M140 65 C147 43, 128 47, 125 60 Z" fill="#FFB7C5"/>
+                            
+                            <!-- Eyes -->
+                            <ellipse cx="80" cy="98" rx="5" ry="7" fill="#5A4A42"/>
+                            <ellipse cx="120" cy="98" rx="5" ry="7" fill="#5A4A42"/>
+                            <circle cx="82" cy="95" r="2" fill="white"/>
+                            <circle cx="122" cy="95" r="2" fill="white"/>
+                            
+                            <!-- Cheeks & Whiskers -->
+                            <ellipse cx="68" cy="107" rx="7" ry="4" fill="#FF85A1" opacity="0.6"/>
+                            <ellipse cx="132" cy="107" rx="7" ry="4" fill="#FF85A1" opacity="0.6"/>
+                            <path d="M50 100 L35 96 M50 105 L32 105 M50 110 L35 114" stroke="#D4C3B5" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M150 100 L165 96 M150 105 L168 105 M150 110 L165 114" stroke="#D4C3B5" stroke-width="2" stroke-linecap="round"/>
+                            
+                            <!-- Nose & Smile -->
+                            <polygon points="100,103 96,108 104,108" fill="#5A4A42"/>
+                            <path d="M96 110 Q100 115 104 110" stroke="#5A4A42" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            
+                            <!-- Paw & Flower Stem -->
+                            <path d="M108 120 L125 100" stroke="#7CAF62" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="127" cy="97" r="7" fill="#FF85A1"/>
+                            <circle cx="121" cy="93" r="5" fill="#FFB7C5"/>
+                            <circle cx="133" cy="93" r="5" fill="#FFB7C5"/>
+                            <circle cx="121" cy="101" r="5" fill="#FFB7C5"/>
+                            <circle cx="133" cy="101" r="5" fill="#FFB7C5"/>
+                            <circle cx="127" cy="97" r="4" fill="#FFE494"/>
+                            
+                            <!-- Cat Paw holding flower -->
+                            <ellipse cx="106" cy="122" rx="6" ry="5" fill="#FFF5EE" stroke="#E5D0C0" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Decorative Ornaments -->
+                    <span class="sticker absolute -bottom-1 -right-2 text-2xl">🌸</span>
+                    <span class="sticker absolute top-1 -left-3 text-2xl">💖</span>
+                    <span class="sticker absolute top-1/2 -right-4 text-xl">⭐</span>
+                </div>
+
+                <!-- Sticky Note Label -->
+                <div class="bg-white/90 shadow-md p-3 px-6 rounded-xl border border-pink-200 transform -rotate-2 my-2">
+                    <p class="font-handwriting text-2xl text-pink-700 tracking-wide font-bold">
+                        a small notebook for you
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <button onclick="nextPage()" class="btn-cute text-white font-bold px-6 py-2 rounded-full flex items-center gap-2 mx-auto cursor-pointer text-sm">
+                        <span>Buka Catatan</span>
+                        <i class="fa-solid fa-heart text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="text-[11px] text-pink-700/70 font-semibold">Buka halaman untuk membaca ✨</div>
+            </div>
+
+            <!-- PAGE 1: HALAMAN PEMBUKA -->
+            <div class="page page-paper p-6 sm:p-7 flex flex-col justify-between">
+                <div class="washi-tape washi-tape-yellow w-32 -top-1 left-12"></div>
+                <div class="sticker absolute top-4 right-6 text-2xl" onclick="showToast('Special message for Safna 💕')">🌸</div>
+
+                <div>
+                    <span class="font-handwriting text-2xl text-pink-500 block mb-1">Catatan Khusus</span>
+                    <h2 class="font-title text-2xl text-gray-800 font-bold border-b-2 border-pink-200 pb-2 flex items-center justify-between">
+                        <span>Halaman Pembuka</span>
+                        <span class="text-xl">🐱</span>
+                    </h2>
+
+                    <!-- Main Message Text -->
+                    <div class="mt-5 space-y-4 text-xs sm:text-sm leading-relaxed text-gray-700">
+                        <p class="font-bold text-pink-600 text-base">
+                            Hallo Safna Khairati,
+                        </p>
+                        <p class="indent-3">
+                            Aku sengaja buat notebook ini biar lucu saja. Di sini aku cuma mau bilang makasih ya sudah sabar ngadepin aku wkwkw.
+                        </p>
+                        <p class="indent-3">
+                            Sebelumnya maaf ya!!! Kalau semisal ada pesan-pesan yang tidak disuka. <span class="text-lg inline-block align-middle">🙏🥺</span>
+                        </p>
+                    </div>
+
+                    <!-- Decorative Card & Small Cat Motif -->
+                    <div class="mt-6 p-3 bg-pink-50/80 rounded-2xl border border-pink-100 flex items-center gap-3">
+                        <div class="text-3xl">🐾</div>
+                        <p class="font-handwriting text-base text-pink-700">
+                            "Ditulis khusus buat kamu, semoga suka yaa..."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200 pt-3">
+                    <span>A Small Notebook</span>
+                    <span class="font-bold text-pink-400">Page 1</span>
+                </div>
+            </div>
+
+            <!-- PAGE 2: PESAN (1) -->
+            <div class="page page-grid p-6 sm:p-7 flex flex-col justify-between">
+                <div class="washi-tape washi-tape-blue w-28 -top-1 right-10"></div>
+                <div class="sticker absolute top-4 left-4 text-xl" onclick="showToast('Senyum sendiri kan? 🤭')">💖</div>
+
+                <div>
+                    <h2 class="font-title text-2xl text-pink-600 font-bold mb-4 flex items-center gap-2">
+                        <span>💌</span> Pesan
+                    </h2>
+
+                    <!-- Message Body -->
+                    <div class="bg-white/90 p-4 rounded-2xl border border-pink-100 shadow-sm space-y-3 text-xs sm:text-sm leading-relaxed text-gray-700 relative">
+                        <p class="indent-2">
+                            Tau ga sih? Kadang hal yang paling sederhana kayak dapet chat dari kamu atau ngobrol random bareng kamu bisa bikin mood bagus seharian.
+                        </p>
+                        <p class="indent-2">
+                            Kayak kucing di sampul depan, walau cuma bawa bunga kecil tapi udah bikin senyum sendiri hehe.
+                        </p>
+                    </div>
+
+                    <!-- Cat with flower illustration mini banner -->
+                    <div class="mt-5 p-3 bg-amber-50/80 rounded-2xl border border-amber-200/60 flex items-center gap-3">
+                        <div class="text-3xl">🐱🌼</div>
+                        <p class="font-handwriting text-base text-pink-600 font-bold">
+                            Masih mau lanjut baca? Yuk liat halaman selanjutnya! ✨
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200 pt-3">
+                    <span class="font-bold text-pink-400">Page 2</span>
+                    <span>Pesan</span>
+                </div>
+            </div>
+
+            <!-- PAGE 3: PESAN (2) -->
+            <div class="page page-paper p-6 sm:p-7 flex flex-col justify-between">
+                <div class="washi-tape w-32 -top-1 left-1/3"></div>
+                <div class="sticker absolute top-3 right-4 text-2xl" onclick="showToast('Jangan galak-galak ya 🫣')">✨</div>
+
+                <div>
+                    <h2 class="font-title text-2xl text-pink-600 font-bold mb-4 flex items-center gap-2">
+                        <span>💭</span> Pesan
+                    </h2>
+
+                    <!-- Message Box -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-pink-100 shadow-sm space-y-3 text-xs sm:text-sm leading-relaxed text-gray-700">
+                        <p class="indent-2">
+                            Jujurly, makin hari rasanya makin sayang (hehe canda). Tapi beneran kok! Selama ini aku selalu mikirin kamu padahal aku udah usaha sekuat tenaga untuk biasa aja, tapi tetep sama aja <span class="font-bold text-pink-600 underline decoration-pink-400 text-sm sm:text-base">GABISA!</span>
+                        </p>
+                        <p class="indent-2">
+                            Tetap jadi orang baik ya Safna, jangan pernah dendam sama yang lain ya.
+                        </p>
+                    </div>
+
+                    <!-- Shy Cat Illustration Badge -->
+                    <div class="mt-5 bg-pink-50/90 p-3 rounded-2xl border border-pink-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-3xl">🐱😳</span>
+                            <span class="font-handwriting text-lg text-pink-700 font-bold">(Ekspresi tersipu wkwk)</span>
+                        </div>
+                        <span class="text-xl">💕</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200 pt-3">
+                    <span>Pesan</span>
+                    <span class="font-bold text-pink-400">Page 3</span>
+                </div>
+            </div>
+
+            <!-- PAGE 4: PESAN (3) -->
+            <div class="page page-paper p-5 sm:p-6 flex flex-col justify-between overflow-y-auto">
+                <div class="washi-tape washi-tape-yellow w-24 -top-1 right-8"></div>
+                <div class="sticker absolute top-2 right-3 text-xl">📖</div>
+
+                <div>
+                    <div class="flex justify-between items-baseline border-b border-pink-200 pb-1.5 mb-3">
+                        <h2 class="font-title text-xl text-gray-800 font-bold">Pesan</h2>
+                        <span class="text-[11px] font-mono text-pink-500 font-bold">Semangat Skripsi! 🎓</span>
+                    </div>
+
+                    <!-- Long Message Content adjusted for comfortable reading -->
+                    <div class="space-y-2.5 text-[11px] sm:text-xs leading-relaxed text-gray-700">
+                        <p class="indent-2">
+                            Kalau misalnya kamu masih butuh aku untuk temen cerita aku masih bisa untuk dengerin semuanya tentang mu, aku akan jadi orang yang pertama kamu kenal, dimana aku hanya bisa mendengarkan semuanya tanpa melibatkan perasaan, aku selalu dengar tawa dan sedihmu.
+                        </p>
+                        <p class="indent-2">
+                            Sekarang aku ga tau kalo kamu masih sibuk atau engga tapi aku tebak kamu masih dengan sibuk-sibuknya skripsian, semangat terus yaa!!!
+                        </p>
+                        <p class="indent-2 font-semibold text-pink-700 bg-pink-50/90 p-2 rounded-xl border border-pink-100">
+                            Aku yakin kamu pasti bisa, karena kamu adalah wanita hebat yang pernah aku kenal. 🌟
+                        </p>
+                    </div>
+
+                    <!-- Quiet Cat Reading Illustration -->
+                    <div class="mt-3 p-2 bg-amber-50/70 rounded-xl border border-amber-100 flex items-center justify-center gap-2 text-xs text-gray-600">
+                        <span class="text-xl">🐱📚</span>
+                        <span class="font-handwriting text-sm text-pink-600">Selalu dukung kamu dari sini...</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200 pt-2 mt-2">
+                    <span class="font-bold text-pink-400">Page 4</span>
+                    <span>Pesan</span>
+                </div>
+            </div>
+
+            <!-- PAGE 5: SELESAI -->
+            <div class="page page-grid p-6 sm:p-7 flex flex-col justify-between">
+                <div class="washi-tape washi-tape-blue w-32 -top-1 left-8"></div>
+                <div class="sticker absolute top-3 right-4 text-2xl" onclick="showToast('Semoga harimu menyenangkan! 🎉')">⭐</div>
+
+                <div>
+                    <h2 class="font-title text-2xl text-pink-600 font-bold mb-4 flex items-center gap-2">
+                        <span>✨</span> Selesai
+                    </h2>
+
+                    <!-- Final Note Box -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-pink-100 shadow-sm space-y-3 text-xs sm:text-sm leading-relaxed text-gray-700">
+                        <p class="font-bold text-pink-600 text-sm sm:text-base">
+                            Udah habis catatannya! Makasih ya udah baca sampe akhir.
+                        </p>
+                        <p class="font-handwriting text-xl text-pink-700">
+                            Semoga harimu selalu bahagiaa... 🌸
+                        </p>
+                    </div>
+
+                    <!-- Highlight GOOD LUCK Banner -->
+                    <div class="mt-6 text-center bg-gradient-to-r from-pink-400 to-pink-500 text-white p-4 rounded-2xl shadow-md transform hover:scale-105 transition">
+                        <span class="text-2xl block mb-1">🐱👋</span>
+                        <h3 class="font-title text-2xl sm:text-3xl font-extrabold tracking-wider">
+                            GOOD LUCK 💖
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200 pt-3">
+                    <span>Selesai</span>
+                    <span class="font-bold text-pink-400">Page 5</span>
+                </div>
+            </div>
+
+            <!-- PAGE 6: THE END / BACK COVER -->
+            <div class="page page-cover p-6 flex flex-col justify-between items-center text-center relative">
+                <div class="washi-tape w-28 -top-2 right-8"></div>
+                <div class="washi-tape washi-tape-yellow w-24 -top-2 left-8"></div>
+
+                <!-- Minimalist Aesthetic "Thank You" Centerpiece -->
+                <div class="my-auto flex flex-col items-center justify-center">
+                    <span class="text-4xl mb-2 animate-bounce">🐱🌸</span>
+                    
+                    <h1 class="font-handwriting text-5xl sm:text-6xl text-pink-700 font-bold leading-tight my-2 drop-shadow-sm">
+                        Thank You
+                    </h1>
+
+                    <div class="flex gap-2 text-pink-400 text-lg mt-1">
+                        <span>✨</span>
+                        <span>🌸</span>
+                        <span>💖</span>
+                        <span>🌸</span>
+                        <span>✨</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <button onclick="goToPage(0)" class="btn-cute text-white font-bold px-5 py-2 rounded-full text-xs flex items-center gap-2 mx-auto">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Kembali ke Sampul</span>
+                    </button>
+                </div>
+
+                <div class="text-[10px] text-pink-700/60 font-semibold">a small notebook for Safna Khairati 💕</div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bottom Controls & Navigation -->
+    <footer class="w-full max-w-md flex justify-between items-center mt-3 px-4 py-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-pink-100">
+        <button onclick="prevPage()" class="btn-cute text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-chevron-left"></i>
+            <span>Prev</span>
+        </button>
+
+        <span class="text-xs text-gray-500 font-medium">Turn page or click buttons</span>
+
+        <button onclick="nextPage()" class="btn-cute text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
+            <span>Next</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </footer>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-800/90 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none z-50">
+        Toast Message
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let pageFlip = null;
+        let isAudioEnabled = true;
+
+        // Web Audio API Synthesizer for Paper Turn Sound Effect
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playPaperSound() {
+            if (!isAudioEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const bufferSize = audioCtx.sampleRate * 0.15; // 0.15 seconds
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                // White noise with exponential decay for paper rustle sound
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1200;
+                filter.Q.value = 1.5;
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noise.start();
+            } catch (e) {
+                console.log('Audio play blocked or unavailable');
+            }
+        }
+
+        // Global Interactive Helper Functions
+        window.nextPage = function() {
+            if (pageFlip) {
+                pageFlip.flipNext();
+            }
+        };
+
+        window.prevPage = function() {
+            if (pageFlip) {
+                pageFlip.flipPrev();
+            }
+        };
+
+        window.goToPage = function(pageNum) {
+            if (pageFlip) {
+                pageFlip.flip(parseInt(pageNum));
+            }
+        };
+
+        window.setMood = function(moodText) {
+            const moodStatus = document.getElementById('moodStatus');
+            if (moodStatus) {
+                moodStatus.innerText = 'Current Mood: ' + moodText;
+            }
+            showToast('Mood updated to ' + moodText + ' ✨');
+        };
+
+        window.showToast = function(msg) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        };
+
+        // Initialize PageFlip on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('flipbook');
+
+            // Responsive dimensions calculation
+            const getDimensions = () => {
+                const viewportWidth = window.innerWidth;
+                const availableHeight = Math.max(320, Math.min(580, window.innerHeight - 180));
+                const targetWidth = viewportWidth < 640
+                    ? viewportWidth - 24
+                    : viewportWidth < 1024 ? 380 : 420;
+                const width = Math.max(240, Math.min(targetWidth, Math.floor(availableHeight * 330 / 480)));
+                return { width, height: Math.round(width * 480 / 330) };
+            };
+
+            const dim = getDimensions();
+
+            // Create StPageFlip Instance with cross-version safety fallback
+            const PageFlipClass = (typeof PageFlip !== 'undefined' && PageFlip.PageFlip) 
+                ? PageFlip.PageFlip 
+                : (typeof St !== 'undefined' && St.PageFlip ? St.PageFlip : window.PageFlip);
+
+            pageFlip = new PageFlipClass(container, {
+                width: dim.width,
+                height: dim.height,
+                size: "fixed",
+                minWidth: 240,
+                maxWidth: 450,
+                minHeight: 320,
+                maxHeight: 620,
+                maxShadowOpacity: 0.3,
+                showCover: true,
+                usePortrait: true,
+                mobileScrollSupport: false
+            });
+
+            // Load DOM pages into flipbook
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+            // Page flip event listeners
+            pageFlip.on('flip', (e) => {
+                playPaperSound();
+                const pageNumDisplay = document.getElementById('currentPageNum');
+                const pageSelect = document.getElementById('pageSelect');
+                if (pageNumDisplay) pageNumDisplay.innerText = e.data + 1;
+                if (pageSelect) pageSelect.value = e.data;
+            });
+
+            // Page dropdown selector change
+            const pageSelect = document.getElementById('pageSelect');
+            if (pageSelect) {
+                pageSelect.addEventListener('change', (e) => {
+                    pageFlip.flip(parseInt(e.target.value));
+                });
+            }
+
+            // Audio Toggle Button Event Listener
+            const audioBtn = document.getElementById('audioToggle');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', () => {
+                    isAudioEnabled = !isAudioEnabled;
+                    if (isAudioEnabled) {
+                        audioBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i><span class="hidden sm:inline">Sound ON</span>';
+                        showToast('Sound effects enabled 🔊');
+                    } else {
+                        audioBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i><span class="hidden sm:inline">Sound OFF</span>';
+                        showToast('Sound effects muted 🔇');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
